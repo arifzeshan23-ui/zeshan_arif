@@ -10,24 +10,32 @@ import { Button } from "@/components/ui/button";
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated()) {
-      router.push("/admin/login");
+      router.replace("/admin/login");
+    } else {
+      // Verify token is actually valid with the backend
+      import("@/lib/api").then(({ default: api }) => {
+        api.get("/auth/me").catch(() => {
+          removeToken();
+          router.replace("/admin/login");
+        });
+        setAuthed(true);
+      });
     }
   }, [router]);
+
+  if (!authed) return null;
 
   const handleLogout = () => {
     removeToken();
     router.push("/admin/login");
   };
 
-  if (typeof window !== "undefined" && !isAuthenticated()) {
-    return null;
-  }
-
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex">
+    <div className="h-screen bg-[#0a0a0f] flex overflow-hidden">
       {/* Sidebar */}
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 

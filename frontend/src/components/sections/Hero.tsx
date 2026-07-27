@@ -1,10 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowDown, Download, Mail, ExternalLink } from "lucide-react";
 import TypingText from "@/components/shared/TypingText";
 import MagneticButton from "@/components/shared/MagneticButton";
 import { Button } from "@/components/ui/button";
+import api from "@/lib/api";
+
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1").replace("/api/v1", "");
 
 const SOCIAL_LINKS = [
   { icon: "GH", label: "GitHub", href: "https://github.com/zeeshanarif" },
@@ -27,6 +31,16 @@ const itemVariants = {
 };
 
 export default function Hero() {
+  const [settings, setSettings] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    api.get("/settings").then((res) => {
+      if (res.data.data) setSettings(res.data.data);
+    }).catch(() => {});
+  }, []);
+
+  const profileImage = settings.profile_image;
+  const profileName = settings.profile_name || "Zeeshan Arif";
   return (
     <section
       id="hero"
@@ -60,7 +74,7 @@ export default function Hero() {
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-4"
             >
               Hi, I&apos;m{" "}
-              <span className="gradient-text">Zeeshan Arif</span>
+              <span className="gradient-text">{profileName}</span>
             </motion.h1>
 
             <motion.div variants={itemVariants} className="text-xl sm:text-2xl text-muted mb-2 h-10">
@@ -145,9 +159,17 @@ export default function Hero() {
           >
             <div className="relative">
               <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-full gradient-border overflow-hidden">
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-primary/20 via-accent/20 to-accent2/20 flex items-center justify-center">
-                  <span className="text-6xl sm:text-7xl font-bold gradient-text">ZA</span>
-                </div>
+                {profileImage ? (
+                  <img
+                    src={`${API_BASE}${profileImage}`}
+                    alt={profileName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full bg-gradient-to-br from-primary/20 via-accent/20 to-accent2/20 flex items-center justify-center">
+                    <span className="text-6xl sm:text-7xl font-bold gradient-text">ZA</span>
+                  </div>
+                )}
               </div>
               {/* Floating elements */}
               <div className="absolute -top-4 -right-4 w-16 h-16 rounded-2xl glass flex items-center justify-center animate-float">

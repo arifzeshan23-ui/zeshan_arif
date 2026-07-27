@@ -19,25 +19,9 @@ from app.models import (
 )
 from app.core.security import get_password_hash
 
-Base.metadata.create_all(bind=engine)
-db = SessionLocal()
 
-try:
-    # ── Admin user ──
-    admin = db.query(User).filter(User.username == "admin").first()
-    if not admin:
-        admin = User(
-            username="admin",
-            email="arifzeshan23@gmail.com",
-            hashed_password=get_password_hash("admin123"),
-            is_active=True,
-        )
-        db.add(admin)
-        db.commit()
-        db.refresh(admin)
-        print("✅ Admin user created: admin / admin123")
-    else:
-        print("✓ Admin user already exists")
+def run_seed(db):
+    """Seed all content data. Idempotent — safe to call on every startup."""
 
     # ── Project Categories ──
     categories_data = [
@@ -299,9 +283,30 @@ try:
 
     print("\n🎉 Database seeding complete!")
 
-except Exception as e:
-    db.rollback()
-    print(f"❌ Error during seeding: {e}")
-    raise
-finally:
-    db.close()
+
+if __name__ == "__main__":
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        from app.core.security import get_password_hash
+
+        admin = db.query(User).filter(User.username == "admin").first()
+        if not admin:
+            admin = User(
+                username="admin",
+                email="arifzeshan23@gmail.com",
+                hashed_password=get_password_hash("admin123"),
+                is_active=True,
+            )
+            db.add(admin)
+            db.commit()
+            print("✅ Admin user created: admin / admin123")
+        else:
+            print("✓ Admin user already exists")
+        run_seed(db)
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Error: {e}")
+        raise
+    finally:
+        db.close()

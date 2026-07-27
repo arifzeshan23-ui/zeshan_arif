@@ -3,12 +3,14 @@ from typing import List
 import os
 
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
 class Settings(BaseSettings):
-    DATABASE_URL: str = "mysql+pymysql://root:password@localhost:3306/zeeshan_portfolio"
     SECRET_KEY: str = "super-secret-key-change-in-production-abc123xyz"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
-    UPLOAD_DIR: str = "uploads"
+    UPLOAD_DIR: str = os.path.join(BASE_DIR, "uploads")
     CORS_ORIGINS: str = "http://localhost:3000"
 
     @property
@@ -17,6 +19,7 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 
 settings = Settings()

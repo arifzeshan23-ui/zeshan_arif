@@ -31,6 +31,7 @@ export default function AdminSettings() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("folder", "images");
+    formData.append("setting_key", key);
     try {
       const res = await api.post("/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -87,6 +88,7 @@ export default function AdminSettings() {
                 const formData = new FormData();
                 formData.append("file", file);
                 formData.append("folder", "cv");
+                formData.append("setting_key", "cv_url");
                 api.post("/upload", formData, {
                   headers: { "Content-Type": "multipart/form-data" },
                 }).then((res) => updateField("cv_url", res.data.url))

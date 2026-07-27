@@ -5,6 +5,9 @@ from typing import Optional
 
 
 class CRUDSetting(CRUDBase[Setting, SettingCreate, SettingUpdate]):
+    def get_multi(self, db, skip=0, limit=100, filters=None, order_by=None):
+        return db.query(self.model).offset(skip).limit(limit).all()
+
     def get_by_key(self, db, key: str) -> Optional[Setting]:
         return db.query(Setting).filter(Setting.key == key).first()
 
